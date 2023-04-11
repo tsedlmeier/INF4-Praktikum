@@ -1,10 +1,10 @@
 use std::env;
 use std::fs;
 
-struct Subset {
-    sum   : i32,
-    left  : usize,
-    right : usize,
+struct Rets {
+    max_   : i32,
+    l_   : usize,
+    r_   : usize,
 }
 
 fn read_seq(v: &mut Vec<i8>, path: String)
@@ -15,42 +15,64 @@ fn read_seq(v: &mut Vec<i8>, path: String)
     }
 }
 
-fn calc_partsum(v: &Vec<i8>, sub: &mut Subset)
+fn find_between(z:&Vec<i8>, l:usize, m:usize, r:usize) -> Rets
 {
-    let n = v.len();
-    let mut max : i32 = -128;
+    let mut left = 0;
+    let mut right = 0;
+    let mut left_max = -128;
+    let mut right_max = -128;
+    let mut sum = 0;
 
-    for i in 1..n-1 {
-        for j in i..n-1 {
-            sub.sum = 0;
-            for k in i..j {
-                sub.sum += <i8 as Into<i32>>::into(v[k]);
-            }
-            if sub.sum > max {
-                max = sub.sum;
-                sub.left = i;
-                sub.right = j;
-            }
+    for i in (l..m+1).rev() { // careful with bound
+        sum += <i8 as Into<i32>>::into(z[i]);
+        if sum > left_max {
+            left_max = sum;
+            left = i;
         }
     }
-    sub.sum = max;
+    sum = 0;
+    for i in m+1..r {
+        sum += <i8 as Into<i32>>::into(z[i]);
+        if sum > right_max {
+            right_max = sum;
+            right = i;
+        }
+    }
+    return Rets { max_:left_max+right_max, l_:left, r_:right };
+}
+
+fn calc_partsum(z:&Vec<i8>, l:usize, r:usize) -> Rets
+{
+    if l == r {
+        return Rets{ max_:<i8 as Into<i32>>::into(z[l]), l_:l, r_:r };
+    }
+
+    let m:usize = (l+r)/2;
+    let left = calc_partsum(&z,l,m);        // case 1
+    let right = calc_partsum(&z,m+1,r);     // case 2
+    let middle = find_between(&z,l,m,r);    // case 3
+
+    // left sum was largest
+    if left.max_ >= right.max_ && left.max_ >= middle.max_ {
+        return left;
+    }
+    // right sum was largest
+    if right.max_ >= left.max_ && right.max_ >= middle.max_ {
+        return right;
+    }
+    // middle sum was largest
+    return middle;
+
 }
 
 fn main() 
 {
-    let mut v: Vec<i8> = Vec::new();
+    let mut z: Vec<i8> = Vec::new();
     let args: Vec<String> = env::args().collect();
     let path = &args[1];
 
-    read_seq(&mut v, path.to_string()); 
+    read_seq(&mut z, path.to_string()); 
+    let rets = calc_partsum(&z,0,z.len()-1);
 
-    let mut sub = Subset{
-        sum : 0,
-        left :0,
-        right :0,
-    }; 
-    // let sum = calc_partsum(&v, &mut links, &mut rechts);
-    calc_partsum(&v, &mut sub);
-
-    println!("max partsum: {0}", sub.sum);
+    println!("max partsum from Z[{0}..{1}]: {2} ", rets.l_, rets.r_, rets.max_);
 }
