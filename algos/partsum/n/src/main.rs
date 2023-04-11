@@ -1,5 +1,5 @@
-use std::env;
 use std::fs;
+use std::time::Instant;
 
 struct Rets {
     max_   : i32,
@@ -7,7 +7,7 @@ struct Rets {
     r_   : usize,
 }
 
-fn calc_partsum_from_file(path: String) -> Rets
+fn calc_partsum_from_file(path: &String) -> Rets
 {
     let mut max = -128;
     let mut cur_sum : i32 = 0;
@@ -36,10 +36,21 @@ fn calc_partsum_from_file(path: String) -> Rets
 
 fn main() 
 {
-    let args: Vec<String> = env::args().collect();
-    let path = &args[1];
+    // let args: Vec<String> = env::args().collect();
+    // let path = &args[1];
+    let mut paths : Vec<String> = Vec::new();
+    for i in 0..4 {
+        let s = format!("../../../../input/seq{}.txt", i);
+        paths.push(s);
+    };
 
-    let rets = calc_partsum_from_file(path.to_string());
+    for path in paths.iter() {
+        let now = Instant::now();
+        let rets = calc_partsum_from_file(path);
+        let time = now.elapsed().as_micros() as f64;
 
-    println!("max partsum from Z[{0}..{1}]: {2} ", rets.l_, rets.r_, rets.max_);
+        println!("--------------------------------------");
+        println!(" max(Σ) = Z[{0}] + .. + Z[{1}] = {2} ", rets.l_, rets.r_, rets.max_);
+        println!("Runtime: {0}s", time/1000000.0 );
+    }   
 }
