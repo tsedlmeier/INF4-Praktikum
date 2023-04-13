@@ -7,7 +7,7 @@ struct Rets {
     r_   : usize,
 }
 
-fn calc_partsum_from_file(path: &String) -> Rets
+fn calc_partsum_from_file(path: &String, cnt: &mut i32) -> Rets
 {
     let mut max = -128;
     let mut cur_sum : i32 = 0;
@@ -18,6 +18,7 @@ fn calc_partsum_from_file(path: &String) -> Rets
     let data = fs::read_to_string(path).expect("Unable to read file");
     let mut i = 0;
     for line in data.lines() {
+        (*cnt)+=1;
         cur_sum += line.parse::<i32>().unwrap();
         if cur_sum > max {
             max = cur_sum;
@@ -45,12 +46,14 @@ fn main()
     };
 
     for path in paths.iter() {
+        let mut cnt : i32 = 0; 
         let now = Instant::now();
-        let rets = calc_partsum_from_file(path);
+        let rets = calc_partsum_from_file(path, &mut cnt);
         let time = now.elapsed().as_micros() as f64;
 
-        println!("--------------------------------------");
+        println!("--------------- N = {0} -----------------", cnt);
         println!(" max(Σ) = Z[{0}] + .. + Z[{1}] = {2} ", rets.l_, rets.r_, rets.max_);
-        println!("Runtime: {0}s", time/1000000.0 );
+        // println!("Runtime: {0}s", time/1000000.0 );
+        println!("Runtime: {0}us", time);
     }   
 }

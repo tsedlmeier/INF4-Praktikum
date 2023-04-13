@@ -7,10 +7,11 @@ struct Rets {
     r_   : usize,
 }
 
-fn read_seq(v: &mut Vec<i8>, path: String)
+fn read_seq(v: &mut Vec<i8>, path: &String, cnt: &mut i32)
 {
     let data = fs::read_to_string(path).expect("Unable to read file");
     for line in data.lines() {
+        (*cnt)+=1;
         v.push( line.parse::<i8>().unwrap() );
     }
 }
@@ -77,15 +78,18 @@ fn main()
     };
 
     for path in paths.iter() {
-        read_seq(&mut z, path.to_string()); 
+        let mut cnt : i32 = 0;
+        // read_seq(&mut z, path.to_string()); 
+        read_seq(&mut z, path, &mut cnt); 
 
         let now = Instant::now();
         let rets = calc_partsum(&z,0,z.len()-1);
         let time = now.elapsed().as_micros() as f64;
 
-        println!("--------------------------------------");
+        println!("--------------- N = {0} -----------------", cnt);
         println!(" max(Σ) = Z[{0}] + .. + Z[{1}] = {2} ", rets.l_, rets.r_, rets.max_);
-        println!("Runtime: {0}s", time/1000000.0 );
+        // println!("Runtime: {0}s", time/1000000.0 );
+        println!("Runtime: {0}us", time);
     }   
 }
 

@@ -8,10 +8,11 @@ struct Subset {
     right : usize,
 }
 
-fn read_seq(v: &mut Vec<i8>, path: &String)
+fn read_seq(v: &mut Vec<i8>, path: &String, cnt: &mut i32)
 {
     let data = fs::read_to_string(path).expect("Unable to read file");
     for line in data.lines() {
+        (*cnt)+=1;
         v.push( line.parse::<i8>().unwrap() );
     }
 }
@@ -43,7 +44,7 @@ fn main()
     // let args: Vec<String> = env::args().collect();
     // let path = &args[1];
     let mut paths : Vec<String> = Vec::new();
-    for i in 0..3 {
+    for i in 0..4 {
         let s = format!("../../../../input/seq{}.txt", i);
         paths.push(s);
     };
@@ -51,15 +52,17 @@ fn main()
 
 
     for path in paths.iter() {
+        let mut cnt : i32 = 0;
         let mut sub = Subset{ sum:0, left:0, right :0 }; 
-        read_seq(&mut v, path); 
+        read_seq(&mut v, path, &mut cnt); 
 
         let now = Instant::now();
         calc_partsum(&v, &mut sub);
         let time = now.elapsed().as_micros() as f64;
 
-        println!("--------------------------------------");
+        println!("--------------- N = {0} -----------------", cnt);
         println!(" max(Σ) = Z[{0}] + .. + Z[{1}] = {2} ", sub.left, sub.right, sub.sum);
-        println!("Runtime: {0}s", time/1000000.0 );
+        println!("Runtime: {0}us", time);
+        // println!("Runtime: {0}s", time/1000000.0 );
     }   
 }

@@ -13,7 +13,7 @@ liefert folgende Teil-Zahlenfolge die maximale Abschnittssumme:
 1. Implementieren Sie den betrachteten kubischen Algorithmus und ermitteln Sie für alle
 vier Folgen die maximale Abschnittssumme (Wert, linke Grenze, rechte Grenze). 
 <p align="center">
-  <img src="./img/n3.png" width="50%" />
+  <img src="./img/n3_alg.png" width="50%" />
 </p>
 
 ### Lösung
@@ -41,7 +41,19 @@ fn calc_partsum(v: &Vec<i8>, sub: &mut Subset)
 ```
 ### Laufzeit
 2) Messen Sie die Laufzeit Ihrer Lösung für die unterschiedlichen Längen der vorgegebenen Folgen.
-Kann das kubische Wachstum bestätigt werden? 
+
+| N      | Laufzeit |
+| ------ | -------- |
+| 10    | 1 us         |
+| 100   | 459 us       |
+| 1000  | 209 ms    |
+| 10000 | 4738 s |
+
+Das kubische Wachstum konnte durch Messung der Laufzeit bestätigt werden. 
+<p align="center">
+  <img src="./img/n3.png" width="100%" />
+</p>
+
 3) Wodurch können Abweichungen entstehen?
 
 ## Aufgabe 2 - Teile-und-Herrsche Algorithmus
@@ -151,5 +163,10 @@ fn calc_partsum_from_file(path: String) -> Rets
 ```
 
 Warum ist das aus Sicht der Effizienz eine gute Idee?
+
 2) Berechnen Sie ebenfalls die maximalen Abschnittssummen der gegebenen Folgen und
 vergleichen Sie die Ergebnisse.
+<p align="center">
+  <img src="./img/exec.png" width="100%" />
+</p>
+
