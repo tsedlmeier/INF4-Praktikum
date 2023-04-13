@@ -44,7 +44,7 @@ fn calc_partsum(v: &Vec<i8>, sub: &mut Subset)
 
 | N      | Laufzeit |
 | ------ | -------- |
-| 10    | 1 us         |
+| 10    | 0.1 us         |
 | 100   | 459 us       |
 | 1000  | 209 ms    |
 | 10000 | 4738 s |
@@ -166,6 +166,13 @@ Warum ist das aus Sicht der Effizienz eine gute Idee?
 
 2) Berechnen Sie ebenfalls die maximalen Abschnittssummen der gegebenen Folgen und
 vergleichen Sie die Ergebnisse.
+
+| N     | $O(n^3)$ |$O(nld(n))$ |$O(n)$ |
+| ----- | ------ | ------ | ------ |
+| 10    | 0.1 us | 1 us   | 21 us  |
+| 100   | 459 us | 9 us   | 16 us  |
+| 1000  | 209 ms | 63 us  | 57 us  |
+| 10000 | 4738 s | 703 us | 540 us |
 <p align="center">
   <img src="./img/exec.png" width="100%" />
 </p>
