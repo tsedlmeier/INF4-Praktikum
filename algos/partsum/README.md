@@ -23,10 +23,10 @@ fn calc_partsum(v: &Vec<i8>, sub: &mut Subset)
     let n = v.len();
     let mut max : i32 = -128;
 
-    for i in 1..n-1 {
+    for i in 0..n-1 {
         for j in i..n-1 {
             sub.sum = 0;
-            for k in i..j {
+            for k in i..j+1 {
                 sub.sum += <i8 as Into<i32>>::into(v[k]);
             }
             if sub.sum > max {
