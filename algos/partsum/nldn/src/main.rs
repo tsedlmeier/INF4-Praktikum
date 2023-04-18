@@ -68,7 +68,6 @@ fn calc_partsum(z:&Vec<i8>, l:usize, r:usize) -> Rets
 
 fn main() 
 {
-    let mut z: Vec<i8> = Vec::new();
     // let args: Vec<String> = env::args().collect();
     // let path = &args[1];
     let mut paths : Vec<String> = Vec::new();
@@ -78,6 +77,7 @@ fn main()
     };
 
     for path in paths.iter() {
+        let mut z: Vec<i8> = Vec::new();
         let mut cnt : i32 = 0;
         // read_seq(&mut z, path.to_string()); 
         read_seq(&mut z, path, &mut cnt); 
