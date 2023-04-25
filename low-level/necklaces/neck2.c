@@ -7,6 +7,17 @@
 #define N 4
 #endif
 
+// Convert a mixed-radix number to decimal
+int conv_dec(int* A, int radix, int n)
+{
+    // (x)_10 = (a3*radix + a2)*radix + a1)*radix +a0 --> siehe Knuth
+    int val_dec = A[0];
+    for (int i = 1; i <= n-1; i++) {
+        val_dec = val_dec * radix + A[i];
+    }
+    return val_dec;
+}
+
 void print(int* A, int n)
 {
     for (int i = 0; i<n; i++)
@@ -22,17 +33,6 @@ void fill(int* A, int n, int val)
     }
 }
 
-// Convert a mixed-radix number to decimal
-int conv_dec(int* A, int radix, int n)
-{
-    // (x)_10 = (a3*radix + a2)*radix + a1)*radix +a0 --> siehe Knuth
-    int val_dec = A[0];
-    for (int i = 1; i <= n-1; i++) {
-        val_dec = val_dec * radix + A[i];
-    }
-    return val_dec;
-}
-
 void rotate_left(int* A, int n)
 {
     int first = A[0];
@@ -42,36 +42,30 @@ void rotate_left(int* A, int n)
     A[n-1] = first;
 }
 
-int get_represent(int* A, int radix, int n)
-{
-    int min = conv_dec(A,radix,n);
-    for (int i = 0; i < n; i++) {
-        rotate_left(A,n);
-        int new = conv_dec(A,radix,n);
-        min = (new < min) ? new : min;
-    }
-    return min;
-}
-
-int contains(int* A, int val, int n)
-{
-    for (int i = 0; i < n; i++) {
-        if( A[i]==val) {
-            return 1;
-        }
-    }
-    return 0;
-}
-
 int greater(int* A, int* B)
 {
     for (int i = 0; i < N; i++) {
+        if(A[i]==B[i]) 
+            continue;
         if(A[i]<B[i])
+            return 0;
+        else
+            return 1;
+    }
+    return -1;
+}
+
+int is_repr(int* A)
+{
+    int repr[N];
+    memcpy(repr, A, sizeof(int)*N);
+    for (int i = 0; i < N-1; i++) {
+        rotate_left(repr,N);
+        if ( !greater(repr,A) )
             return 0;
     }
     return 1;
 }
-
 
 int main()
 {
@@ -80,9 +74,6 @@ int main()
     int Num[N]; 
     fill(Num, n, 0);
 
-    int* Min = (int*)calloc(1,sizeof(int));
-
-    int repr = 0;
     int do_run = 1;
     static int c = 1;
 
@@ -99,14 +90,11 @@ int main()
                 do_run = 0;
                 break;
             }
-            repr = get_represent(Num,colors,n);
-            if(!contains(Min,repr,c)){
+            if( is_repr(Num) ){
                 c++;
-                Min = (int*)realloc(Min,c*sizeof(int));
-                Min[c-1] = repr;
                 #ifdef PRINT
                 print(Num,N);
-                printf(" -- %d\n", repr);
+                printf(" -- %d\n", conv_dec(Num, colors, N));
                 #endif
             }
         }
@@ -119,5 +107,4 @@ int main()
     printf(" -- %d\n", (int)pow(colors,n)-1);
     #endif
     printf("Anzahl: %d\n", c+1);
-    free(Min);
 }

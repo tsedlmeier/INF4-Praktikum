@@ -1,22 +1,25 @@
-N=4
+N=28
 CFLAGS= -std=c99 -O2 -Wextra -Wall -DN=$(N)
 LDFLAGS= -lm
 
 .PHONY: all
 
-all: neck debug fast
+all: neck debug fast neck2
 
 run: 
-	./neck
+	./neck2
+
+neck2: neck2.c
+	gcc -DPRINT -g -DN=$(N) -Wall $(LDFLAGS) $< -o $@
 
 neck: neck.c
 	gcc -DPRINT -DN=$(N) -Wall $(LDFLAGS) $< -o $@
 
-debug: neck.c
+debug: neck2.c
 	gcc -std=c99 -g  $(LDFLAGS) $< -o $@
 
-fast: neck.c
+fast: neck2.c
 	gcc $(CFLAGS) $(LDFLAGS) $< -o $@
 
 clean:
-	rm -rf neck debug fast
+	rm -rf neck debug fast neck2
