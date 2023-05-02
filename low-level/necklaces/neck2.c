@@ -94,7 +94,8 @@ int main()
                 c++;
                 #ifdef PRINT
                 print(Num,N);
-                printf(" -- %d\n", conv_dec(Num, colors, N));
+                // printf(" -- %d\n", conv_dec(Num, colors, N));
+                printf("  +\n");
                 #endif
             }
         }
@@ -104,7 +105,8 @@ int main()
     for (size_t i = 0; i < n; i++) {
         printf("%d", colors-1);
     }
-    printf(" -- %d\n", (int)pow(colors,n)-1);
+    // printf(" -- %d\n", (int)pow(colors,n)-1);
+    printf("\n");
     #endif
     printf("Anzahl: %d\n", c+1);
 }
