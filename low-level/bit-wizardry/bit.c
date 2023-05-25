@@ -9,15 +9,17 @@
 
 int main()
 {
-    uint8_t x = 0;
+    uint32_t x = 0;
     static int cnt=1;
 
-    while (x != 0xAA) {
-        uint8_t y = ~( x | (x>>1) );    // gen 1 where 2 zeros are nearby
-        uint8_t z =  y & ~(y-1);        // isolate lowest 1
-        uint8_t mask =  z | ~(z-1) ;    // gen zeros right of lowest 1 and ones left
+    while (x != 0xAAAAAAAA) {
+        uint32_t y = ~( x | (x>>1) );    // gen 1 where 2 zeros are nearby
+        uint32_t z =  y & ~(y-1);        // isolate lowest 1
+        uint32_t mask =  z | ~(z-1) ;    // gen zeros right of lowest 1
         x = (x & mask) | z;             // apply mask to clear bits right of the 1 and set this 1 
-        printf("%8b - %d\n", x,x);
+        #ifdef PRINT
+        printf("%32b - %d\n", x,x);
+        #endif /* ifdef PRINT */
         cnt++;
     }
     printf("Anzahl: %d\n", cnt);

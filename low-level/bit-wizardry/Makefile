@@ -3,7 +3,7 @@ LDFLAGS=
 
 .PHONY: all
 
-all: bit
+all: bit fast
 
 run: 
 	./bit
@@ -11,5 +11,8 @@ run:
 bit: bit.c
 	gcc -DPRINT -DN=$(N) -Wall $(LDFLAGS) $< -o $@
 
+fast: bit.c
+	gcc -O2 -Wall $(LDFLAGS) $< -o $@
+
 clean:
-	rm -rf bit
+	rm -rf bit fast
