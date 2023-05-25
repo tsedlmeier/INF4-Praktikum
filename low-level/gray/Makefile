@@ -4,19 +4,19 @@ LDFLAGS=
 
 .PHONY: all
 
-all: grey debug fast
+all: gray debug fast
 
 run: 
-	./grey
+	./gray
 
-grey: grey.c
+gray: gray.c
 	gcc -std=c99 -DPRINT -Wall $(LDFLAGS) $< -o $@
 
-debug: grey.c
+debug: gray.c
 	gcc -std=c99 -g $(LDFLAGS) $< -o $@
 
-fast: grey.c
+fast: gray.c
 	gcc $(CFLAGS) $(LDFLAGS) $< -o $@
 
 clean:
-	rm -rf grey debug fast
+	rm -rf gray debug fast

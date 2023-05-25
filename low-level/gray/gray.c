@@ -30,7 +30,7 @@ int main()
     int Base[N];
     fill(R,N,0);
     fill(Num,N,0);
-    fill(Base,N,2);
+    fill(Base,N,3);
     int* np = &Num[n-1];
     int* bp = &Base[n-1];
     int* rp = &R[n-1];
@@ -61,7 +61,14 @@ int main()
         cnt++;
 
         // Doesnt work for Base 2
-        if (Num[0] == Base[0]-1 && Num[n-1] == 0) break;
+        int is_done = 1;
+        for (size_t i = N-1; i>0; i--) {
+            if(Num[i] != 0)
+                is_done = 0;
+        }
+
+        if (Num[0]==Base[0]) is_done = 0;
+        if (is_done) break;
         np = &Num[n-1];
         bp = &Base[n-1];
         rp = &R[n-1];
