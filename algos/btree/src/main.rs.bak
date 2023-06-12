@@ -1,0 +1,162 @@
+use std::fs;
+// use std::env;
+
+fn read_seq(v: &mut Vec<i8>, path: &String, cnt: &mut i32)
+{
+    let data = fs::read_to_string(path).expect("Unable to read file");
+    for line in data.lines() {
+        (*cnt)+=1;
+        v.push( line.parse::<i8>().unwrap() );
+    }
+}
+
+// #[derive(Clone)]
+pub struct BTreeNode {
+    m_: usize,
+    n_: usize,
+    keys_: Vec<i32>,
+    refs_: Vec<Option<Box<BTreeNode>>>, // Option = None abbildung
+    is_leaf_: bool
+}
+
+impl Clone for BTreeNode {
+    fn clone(&self) -> Self {
+        Self {
+            m_: self.m_,
+            n_: self.n_,
+            keys_: self.keys_.clone(),
+            refs_: self.refs_.clone(),
+            is_leaf_: self.is_leaf_,
+        }
+    }
+}
+
+impl BTreeNode {
+    fn new(m :usize) -> Self {
+        Self { m_: m, n_: 0, keys_: Vec::with_capacity(2*m-1), refs_: Vec::with_capacity(2*m), is_leaf_: (true) }
+    }
+    fn insert(&mut self, key: i32) {
+        if self.keys_.len() == self.m_ {
+            println!("Keys storage full");
+            return;
+        }
+        else {
+            self.keys_.push(key);
+            self.n_ += 1;
+        }
+    }
+
+    fn print_keys(self) {
+        print!("( ");
+        for k in self.keys_.iter() {
+            print!("{0} ", k);
+        }
+        print!(" )");
+    }
+
+    fn walk(mut self) {
+        if self.is_leaf_ {
+            self.print_keys();
+            return ;
+        }
+        for i in 0..self.n_ {
+            self.refs_[i].as_mut().unwrap().clone().walk();
+        }
+    }
+}
+
+fn b_tree_split_child(parent: &mut Option<Box<BTreeNode>>, i: usize, m: usize ) {
+    let mut child = parent.as_mut().unwrap().refs_[i].take();
+    let mut h = Some(Box::new(BTreeNode::new(m)));
+    h.as_mut().unwrap().is_leaf_ = child.as_ref().unwrap().is_leaf_;
+    h.as_mut().unwrap().n_ = m-1;
+
+    for j in 0..2*m-1 {
+        h.as_mut().unwrap().keys_[j] = child.as_mut().unwrap().keys_[j+m];
+    }
+    if !h.as_mut().unwrap().is_leaf_ {
+        for j in 0..m-1 {
+            h.as_mut().unwrap().refs_[j] = child.as_mut().unwrap().refs_[j+m].clone();
+        }
+        for j in m..child.as_mut().unwrap().n_ {
+            child.as_mut().unwrap().refs_[j] = None;
+        }
+    }
+    child.as_mut().unwrap().n_ = m-1;
+    for j in (i + 1..=parent.as_ref().unwrap().n_).rev(){ // TODO: check if reverse is correct
+        parent.as_mut().unwrap().refs_[j+1] = parent.as_mut().unwrap().refs_[j].clone();
+        parent.as_mut().unwrap().refs_[j] = parent.as_mut().unwrap().refs_[j-1].clone();
+    }
+    parent.as_mut().unwrap().refs_[i+1] = h;
+    parent.as_mut().unwrap().keys_[i] = child.as_mut().unwrap().keys_[m-1];
+    parent.as_mut().unwrap().n_ += 1;
+}
+
+fn b_tree_insert_in_node (start: &mut Option<Box<BTreeNode>>, key: i32, m: usize ) {
+    let mut i = start.as_mut().unwrap().n_;
+    if start.as_mut().unwrap().is_leaf_ {
+        while i >= 1 && key < start.as_mut().unwrap().keys_[i-1] {
+            start.as_mut().unwrap().keys_[i] = start.as_mut().unwrap().keys_[i-1].clone();
+            i -= 1;
+        }
+        start.as_mut().unwrap().keys_[i] = key;
+        start.as_mut().unwrap().n_ += 1;
+    }
+    else {
+        let mut j = 0;
+        while j < start.as_mut().unwrap().n_ && key > start.as_mut().unwrap().keys_[j] {
+            j += 1;
+        }
+        if start.as_mut().unwrap().refs_[j].as_mut().unwrap().n_ == 2*m-1 {
+            b_tree_split_child(start, j, m);
+            if key > start.as_mut().unwrap().keys_[j] {
+                j += 1;
+            }
+        }
+        b_tree_insert_in_node(&mut start.as_mut().unwrap().refs_[j], key, m);
+    }
+}
+
+struct BTree {
+    root_: Option<Box<BTreeNode>>
+}
+impl BTree {
+    fn new(root: &mut Option<Box<BTreeNode>>) -> Self {
+        BTree{ root_: root.take()}
+    }
+
+    fn insert (&mut self, key: i32) {
+        let mut r: Option<Box<BTreeNode>> = self.root_.clone();
+
+        if let Some(root_node) = r.clone() {
+            if root_node.n_ == 2 * root_node.m_ - 1 {
+                let mut h = Some(Box::new(BTreeNode::new(root_node.m_)));
+                self.root_  = Some(Box::new(BTreeNode::new(root_node.m_)));
+                h.as_mut().unwrap().is_leaf_ = false;
+                h.as_mut().unwrap().refs_[0] = r;
+                h.as_mut().unwrap().n_ = 0;
+                b_tree_split_child(&mut h, 0, self.root_.as_ref().unwrap().m_); // Call to split child node
+                b_tree_insert_in_node(&mut h, key, self.root_.as_ref().unwrap().m_); // Call to insert key in node
+            }
+            else {
+                b_tree_insert_in_node(&mut r, key, self.root_.as_ref().unwrap().m_);
+            }
+        }
+    }
+
+    fn walk(&mut self) {
+        self.root_.as_mut().unwrap().clone().walk();
+    }
+
+}
+
+fn main() {
+    let mut root : Option<Box<BTreeNode>> = Some(Box::new(BTreeNode::new(5)));    
+    let mut b_tree : Option<Box<BTree>> = Some(Box::new(BTree::new(&mut root)));    
+    if let Some(b_tree) = b_tree.as_mut() {
+        b_tree.insert(1);
+        b_tree.insert(2);
+        b_tree.insert(3);
+        b_tree.walk();
+    }
+}

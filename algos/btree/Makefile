@@ -2,7 +2,7 @@
 all: debug release
 
 run:
-	cargo run --release ../input/seq1.txt
+	cargo run --release 
 debug:
 	cargo build
 release:
