@@ -104,6 +104,9 @@ impl Hashmap {
             cnt+=1;
         }
     }
+    fn delete(&mut self, key: i32) {
+        
+    }
 }
 
 fn main() {
@@ -120,5 +123,5 @@ fn main() {
         map.insert(*i as i32);
     }
     map.dump();
-    println!("Serching {} --> IDX: {}", -87, map.search(-87));
+    println!("Serching {} --> IDX: {}", 98, map.search(98));
 }
