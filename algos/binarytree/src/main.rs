@@ -23,7 +23,8 @@ pub trait Tree { // trait = interface
     fn traverse(&self, node: &Option<Box<BinTreeElement>>, f: &dyn Fn(i32,usize), level: usize);
     fn search(&self, node: &Option<Box<BinTreeElement>>, key: i32) -> bool;
     fn insert(&mut self, key: i32);
-    // fn walkLevel(&mut self, node: &Option<Box<BinTreeElement>>);
+    fn successor(&self, key: i32) -> Option<i32>;
+    fn walklevel(&self, f: &dyn Fn(Vec<i32>, usize));
 }
 
 pub struct BinSearchTree {
@@ -95,6 +96,59 @@ impl Tree for BinSearchTree{
             }
         }
     }
+
+    fn successor(&self, key: i32) -> Option<i32> {
+        let mut current_node = &self.root;
+        let mut successor: Option<i32> = None;
+
+        while let Some(node) = current_node {
+            if node.key_ > key {
+                successor = Some(node.key_);
+                current_node = &node.left_;
+            } else {
+                current_node = &node.right_;
+            }
+        }
+        return successor;
+    }
+
+    fn walklevel(&self, f: &dyn Fn(Vec<i32>, usize)) {
+        let start_node = &self.root;
+        walk_level_order(start_node, f);    // Starte die Niveau-Traversierung des Binärbaums
+    }
+}
+
+fn walk_level_order(start: &Option<Box<BinTreeElement>>, f: &dyn Fn(Vec<i32>, usize)) {
+    if let Some(node) = start {
+        let mut queue: Vec<(&Box<BinTreeElement>, usize)> = Vec::new();
+        queue.push((node, 0));
+
+        while !queue.is_empty() {
+            let (current_node, level) = queue.remove(0);
+
+            let mut values: Vec<i32> = Vec::new();
+
+            values.push(current_node.key_);
+
+            if let Some(left_child) = &current_node.left_ {
+                queue.push((left_child, level + 1));
+            }
+
+            if let Some(right_child) = &current_node.right_ {
+                queue.push((right_child, level + 1));
+            }
+
+            f(values, level);
+        }
+    }
+}
+
+fn print_level(values: Vec<i32>, level: usize) {
+    print!("Level {}: ", level);
+    for value in values {
+        print!("{} ", value);
+    }
+    println!();
 }
 
 fn print(val: i32, level: usize)
@@ -122,6 +176,12 @@ fn main()
     println!("Search for 42 : Found?{0} ", flag);
 
     binary_tree.traverse(&binary_tree.root, &print, 0);
+
+    let suc = binary_tree.successor(52);
+    println!("Successor for 52 : {0} ", suc.unwrap());
+
+    binary_tree.walklevel(&print_level);
+
 
 }
 
